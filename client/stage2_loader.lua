@@ -8,8 +8,7 @@ print("[Stage 2] Core client initialized in memory.")
 -- CONFIGURATION & SECURITY CONSTANTS
 ---------------------------------------------------------------------
 
--- This version number is our ground truth for debugging deployments.
-local S2_VERSION = "1.1.2" 
+local S2_VERSION = "1.1.3" 
 
 print("[Stage 2] Loader Version: " .. S2_VERSION)
 
@@ -25,37 +24,38 @@ local CURRENT_SCRIPT_ID = "game_a_script"
 ---------------------------------------------------------------------
 -- ENVIRONMENT ABSTRACTION LAYER (Dependencies on the Executor)
 ---------------------------------------------------------------------
+-- This layer is now being updated to match the provided function list.
 
+-- CORRECTED: The base64_decode function is global.
+local Base64 = {
+    decode = function(str)
+        assert(base64_decode, "FATAL: Global function 'base64_decode' not found in environment.")
+        return base64_decode(str)
+    end
+}
+
+-- The following functions are NOT in the provided list. The script WILL fail here.
 local Hashing = {
     sha256 = function(str)
-        assert(crypto and crypto.sha256, "FATAL: crypto.sha256 function not found in environment.")
+        assert(crypto and crypto.sha256, "FATAL: 'crypto.sha256' function not found. Executor is missing required cryptographic capabilities.")
         return crypto.sha256(str)
     end
 }
 
 local AsymmetricEncryption = {
     encrypt = function(plaintext, publicKeyB64)
-        assert(crypto and crypto.rsa_encrypt, "FATAL: crypto.rsa_encrypt function not found in environment.")
+        assert(crypto and crypto.rsa_encrypt, "FATAL: 'crypto.rsa_encrypt' function not found. Executor is missing required cryptographic capabilities.")
         return crypto.rsa_encrypt(plaintext, publicKeyB64)
     end
 }
 
 local SymmetricEncryption = {
-    decrypt = function(ciphertextB64, key)
-        assert(crypto and crypto.aes_decrypt, "FATAL: crypto.aes_decrypt function not found in environment.")
+    decrypt = function(ciphertextB4, key)
+        assert(crypto and crypto.aes_decrypt, "FATAL: 'crypto.aes_decrypt' function not found. Executor is missing required cryptographic capabilities.")
         return crypto.aes_decrypt(ciphertextB64, key)
     end
 }
-
--- NEW: Base64 abstraction to use the correct crypto library
-local Base64 = {
-    decode = function(str)
-        -- We now correctly assume the decode function is part of the crypto library.
-        assert(crypto and crypto.base64_decode, "FATAL: crypto.base64_decode function not found in environment.")
-        return crypto.base64_decode(str)
-    end
-}
-
+-- ... (Networking and Execution are unchanged) ...
 local Networking = {
     post = function(url, body_table)
         assert(request, "FATAL: 'request' function not found in environment.")
@@ -77,7 +77,6 @@ local Execution = {
       return func()
     end
 }
-
 ---------------------------------------------------------------------
 -- CORE LOGIC
 ---------------------------------------------------------------------
@@ -89,9 +88,11 @@ local function do_handshake()
     print("[Stage 2] Server fingerprint: " .. data.fingerprint)
     print("[Stage 2] Hardcoded fingerprint: " .. HARDCODED_SERVER_FINGERPRINT)
     
-    -- CORRECTED: The call now uses the new Base64 abstraction layer.
+    -- This line will now succeed.
     local received_key_bytes = Base64.decode(data.publicKey)
+    print("[Stage 2] Public key decoded successfully.")
     
+    -- This line will now fail, proving the diagnosis.
     local calculated_fingerprint = Hashing.sha256(received_key_bytes)
     assert(calculated_fingerprint == HARDCODED_SERVER_FINGERPRINT, "FATAL: SECURITY ALERT! Server fingerprint mismatch. Possible MITM attack. Terminating.")
     print("[Stage 2] Handshake successful. Server authenticity verified.")
