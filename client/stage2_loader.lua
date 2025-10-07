@@ -8,6 +8,11 @@ print("[Stage 2] Core client initialized in memory.")
 -- CONFIGURATION & SECURITY CONSTANTS
 ---------------------------------------------------------------------
 
+-- This version number is our ground truth for debugging deployments.
+local S2_VERSION = "1.1.0" 
+
+print("[Stage 2] Loader Version: " .. S2_VERSION)
+
 local API_BASE_URL = "https://opaque-conduit-proxy.gooeyhub.workers.dev"
 local HANDSHAKE_ENDPOINT = API_BASE_URL .. "/api/handshake"
 local EXCHANGE_ENDPOINT = API_BASE_URL .. "/api/exchange"
