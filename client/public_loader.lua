@@ -8,8 +8,7 @@
 --]]
 
 -- Configuration: The URL to the Cloudflare proxy worker which fronts our API.
--- This is the only piece of information this loader contains.
-local BOOTSTRAP_URL = "https://your-cloudflare-worker-url.com/api/bootstrap"
+local BOOTSTRAP_URL = "https://opaque-conduit-proxy.gooeyhub.workers.dev/api/bootstrap"
 
 -- Adaptive Networking Engine:
 -- Roblox executors provide different functions for HTTP requests. This function
