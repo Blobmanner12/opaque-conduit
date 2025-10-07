@@ -1,5 +1,5 @@
 // The target Vercel deployment URL.
-// All requests to this worker will be proxied to this backend.
+// This is the stable production alias that always points to the latest live deployment.
 const VERCEL_BACKEND_URL = "https://opaque-conduit.vercel.app";
 
 // Define the CORS headers. These tell the client's browser that it is safe
