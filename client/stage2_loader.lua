@@ -19,9 +19,9 @@ local HANDSHAKE_ENDPOINT = API_BASE_URL .. "/api/handshake"
 local EXCHANGE_ENDPOINT = API_BASE_URL .. "/api/exchange"
 local PAYLOAD_ENDPOINT = API_BASE_URL .. "/api/get-payload"
 
--- CRITICAL: This fingerprint must be manually updated whenever a new server key pair is generated.
--- It is the core defense against Man-in-the-Middle (MITM) attacks.
-local HARDCODED_SERVER_FINGERPRINT = "PASTE_YOUR_SHA256_FINGERPRINT_HERE" 
+-- CRITICAL: The fingerprint below is an EXAMPLE. You MUST replace it with your own
+-- generated fingerprint for the security system to function. See instructions.
+local HARDCODED_SERVER_FINGERPRINT = "f2a5c1b9d4e8f7a6c3b2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0" 
 
 -- This will be replaced by game-specific logic.
 local CURRENT_SCRIPT_ID = "game_a_script" 

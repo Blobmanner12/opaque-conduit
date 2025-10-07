@@ -1,5 +1,5 @@
-const crypto = require('crypto');
-const NodeRSA = require('node-rsa');
+import crypto from 'crypto';
+import NodeRSA from 'node-rsa';
 
 // Load keys from environment variables. The Base64 encoding is crucial.
 const privateKeyB64 = process.env.SERVER_PRIVATE_KEY;
@@ -18,7 +18,7 @@ key.importKey(Buffer.from(privateKeyB64, 'base64'), 'pkcs1-private-pem');
  * This is used by the client to verify the key's authenticity and prevent MITM attacks.
  * @returns {string} The SHA-256 hash of the public key.
  */
-function getPublicKeyFingerprint() {
+export function getPublicKeyFingerprint() {
   const publicKey = Buffer.from(publicKeyB64, 'base64');
   return crypto.createHash('sha256').update(publicKey).digest('hex');
 }
@@ -27,7 +27,7 @@ function getPublicKeyFingerprint() {
  * Returns the public key in Base64 format.
  * @returns {string} The Base64 encoded public key.
  */
-function getPublicKey() {
+export function getPublicKey() {
   return publicKeyB64;
 }
 
@@ -36,20 +36,13 @@ function getPublicKey() {
  * @param {string} encryptedDataB64 The Base64 encoded data from the client.
  * @returns {string} The decrypted data (UTF-8 string).
  */
-function decryptWithPrivateKey(encryptedDataB64) {
+export function decryptWithPrivateKey(encryptedDataB64) {
   try {
     const encryptedBuffer = Buffer.from(encryptedDataB64, 'base64');
     const decryptedBuffer = key.decrypt(encryptedBuffer);
     return decryptedBuffer.toString('utf8');
   } catch (error) {
-    // This will catch padding errors or malformed data, indicating a potential tampering attempt.
     console.error("Decryption failed:", error);
     return null;
   }
 }
-
-module.exports = {
-  getPublicKey,
-  getPublicKeyFingerprint,
-  decryptWithPrivateKey,
-};

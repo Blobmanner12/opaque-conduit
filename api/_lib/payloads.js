@@ -2,10 +2,7 @@
 // All human-readable source code should be in the '/payloads_src/' directory.
 
 const payloads = {
-  // Example structure: The key is a unique script identifier,
-  // and the value is the obfuscated Lua bytecode as a string literal.
   "default_placeholder": "print('This is a placeholder payload. The real, obfuscated payload will be embedded here during the build process.')",
-  // e.g., "game_a_script_v1": "local a=...;if a then...",
 };
 
 /**
@@ -13,8 +10,6 @@ const payloads = {
  * @param {string} scriptId The ID of the script to retrieve.
  * @returns {string|null} The payload string or null if not found.
  */
-function getPayload(scriptId) {
+export function getPayload(scriptId) {
   return payloads[scriptId] || null;
 }
-
-module.exports = { getPayload };

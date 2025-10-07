@@ -1,4 +1,4 @@
-const { getPublicKey, getPublicKeyFingerprint } = require('./_lib/crypto');
+import { getPublicKey, getPublicKeyFingerprint } from './_lib/crypto.js';
 
 export default function handler(req, res) {
   try {
