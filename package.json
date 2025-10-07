@@ -1,0 +1,19 @@
+{
+  "name": "opaque-conduit",
+  "version": "1.0.0",
+  "description": "Secure, white-box payload delivery system for Project Gooey Hub.",
+  "private": true,
+  "scripts": {
+    "start": "vercel dev",
+    "deploy:prod": "vercel --prod",
+    "build:payloads": "node scripts/bundle-payloads.js",
+    "generate-keys": "node scripts/generate-keys.js"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.22.0",
+    "node-rsa": "^1.1.1"
+  },
+  "devDependencies": {
+    "vercel": "^32.5.0"
+  }
+}
