@@ -9,7 +9,7 @@ print("[Stage 2] Core client initialized in memory.")
 ---------------------------------------------------------------------
 
 -- This version number is our ground truth for debugging deployments.
-local S2_VERSION = "1.1.1" 
+local S2_VERSION = "1.1.2" 
 
 print("[Stage 2] Loader Version: " .. S2_VERSION)
 
@@ -47,6 +47,15 @@ local SymmetricEncryption = {
     end
 }
 
+-- NEW: Base64 abstraction to use the correct crypto library
+local Base64 = {
+    decode = function(str)
+        -- We now correctly assume the decode function is part of the crypto library.
+        assert(crypto and crypto.base64_decode, "FATAL: crypto.base64_decode function not found in environment.")
+        return crypto.base64_decode(str)
+    end
+}
+
 local Networking = {
     post = function(url, body_table)
         assert(request, "FATAL: 'request' function not found in environment.")
@@ -79,7 +88,10 @@ local function do_handshake()
     assert(data and data.publicKey and data.fingerprint, "Handshake failed: Invalid server response.")
     print("[Stage 2] Server fingerprint: " .. data.fingerprint)
     print("[Stage 2] Hardcoded fingerprint: " .. HARDCODED_SERVER_FINGERPRINT)
-    local received_key_bytes = game:GetService("HttpService"):Base64Decode(data.publicKey)
+    
+    -- CORRECTED: The call now uses the new Base64 abstraction layer.
+    local received_key_bytes = Base64.decode(data.publicKey)
+    
     local calculated_fingerprint = Hashing.sha256(received_key_bytes)
     assert(calculated_fingerprint == HARDCODED_SERVER_FINGERPRINT, "FATAL: SECURITY ALERT! Server fingerprint mismatch. Possible MITM attack. Terminating.")
     print("[Stage 2] Handshake successful. Server authenticity verified.")
@@ -110,9 +122,6 @@ local function get_payload(session_token, symmetric_key)
     return decrypted_payload
 end
 
--- === ENHANCED ERROR REPORTING ===
--- We now capture the 'success' and 'err' return values from pcall.
--- If 'success' is false, we print the error message that was previously hidden.
 local success, err = pcall(function()
     local server_public_key = do_handshake()
     local symmetric_key, session_token = do_exchange(server_public_key)
