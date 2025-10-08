@@ -1,8 +1,0 @@
-# This name directly corresponds to the subdomain of the worker URL.
-name = "opaque-conduit-proxy"
-
-# The entry point script for the worker.
-main = "worker.js"
-
-# Specifies the runtime compatibility date to prevent breaking changes.
-compatibility_date = "2023-10-30"
