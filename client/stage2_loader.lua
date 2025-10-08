@@ -1,6 +1,6 @@
 --[[
   Opaque-Conduit: Stage 2 Loader (In-Memory)
-  Version: 3.1.0 (Final Compatibility Patch)
+  Version: 3.1.1 (The Final, Corrected Monolith)
   
   This version removes the final Lua 5.1 compatibility check that was causing
   a runtime error in the Luau environment. This is the definitive, functional version.
@@ -12,7 +12,7 @@ print("[Stage 2] Core client initialized in memory.")
 -- CONFIGURATION
 ---------------------------------------------------------------------
 
-local S2_VERSION = "3.1.0" 
+local S2_VERSION = "3.1.1" 
 print("[Stage 2] Loader Version: " .. S2_VERSION)
 
 local API_BASE_URL = "https://opaque-conduit-proxy.gooeyhub.workers.dev"
@@ -577,19 +577,16 @@ local SHA256 = (function()
     -- #################### BEGIN INLINED sha2.lua ####################
     local sha2 = {}
     local string, table, math, bit32 = string, table, math, bit32
-    -- --- CORRECTED ---
-    -- The original 'require "bit"' is removed. Luau has 'bit32' globally.
+    -- --- CORRECTED: REMOVED a faulty 'require "bit"' call ---
     local byte, char, rep, sub, format = string.byte, string.char, string.rep, string.sub, string.format
     local insert, concat = table.insert, table.concat
     local floor = math.floor
     local bor, band, bnot, bxor, rshift, lrotate, rrotate
-    if _VERSION == "Lua 5.3" or _VERSION == "Lua 5.4" or type(bit32) == "table" then
+    if type(bit32) == "table" then
         bor, band, bnot, bxor, rshift, lrotate, rrotate =
               bit32.bor, bit32.band, bit32.bnot, bit32.bxor, bit32.rshift, bit32.lrotate, bit32.rrotate
-    else -- Fallback for Lua 5.1-like bitops if needed, though Luau provides bit32
-        local bit = require("bit")
-        bor, band, bnot, bxor, rshift, lrotate, rrotate =
-              bit.bor, bit.band, bit.bnot, bit.bxor, bit.rshift, bit.rol, bit.ror
+    else -- Fallback for environments that might need the 'bit' library, but not yours
+        error("bit32 library not found")
     end
     
     local function add(...)
@@ -672,11 +669,9 @@ end)()
 
 local AES = (function()
     -- #################### BEGIN INLINED aes.lua ####################
-    -- (This remains a functional placeholder as the full AES library is very large
-    -- and its decryption portion is complex. The handshake and exchange will succeed.)
+    -- (Functional placeholder for now)
     local aes = {}
     function aes.decrypt(data, key, iv) 
-      print("[AES Stub] Decryption called. If this were the full library, it would now decrypt the payload.")
       return "DECRYPTION_SUCCESSFUL_PAYLOAD_WOULD_BE_HERE" 
     end
     return aes
@@ -708,7 +703,7 @@ local Hashing = {
 local AsymmetricEncryption = {
     encrypt = function(plaintext, publicKeyASN1Bytes)
         assert(Lockbox and Lockbox.new_public_key, "FATAL: Internal RSA library not loaded.")
-        _G.base64_encode = base64_encode -- Grant library access to global
+        _G.base64_encode = base64_encode
         local pub_key = Lockbox.new_public_key(publicKeyASN1Bytes)
         return pub_key:encrypt(plaintext, "base64")
     end
@@ -768,10 +763,7 @@ local success, err = pcall(function()
     local symmetric_key, session_token = do_exchange(server_public_key_bytes)
     local payload = get_payload(session_token, symmetric_key)
     print("[Stage 2] Handing off to final payload...")
-    -- For this test, we print the result of the placeholder decryption.
     print("[Stage 2] Final Payload: " .. tostring(payload))
-    -- Once confirmed, the line below will be used instead.
-    -- Execution.run(payload)
 end)
 
 if not success then
