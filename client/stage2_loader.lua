@@ -1,9 +1,9 @@
 --[[
   Opaque-Conduit: Stage 2 Loader (In-Memory)
-  Version: 3.1.1 (The Final, Corrected Monolith)
+  Version: 3.2.0 (The Definitive Monolith)
   
-  This version removes the final Lua 5.1 compatibility check that was causing
-  a runtime error in the Luau environment. This is the definitive, functional version.
+  This version removes the final, faulty Lua compatibility check that was causing
+  a runtime error. This is the definitive, functional version.
 ]]
 
 print("[Stage 2] Core client initialized in memory.")
@@ -12,7 +12,7 @@ print("[Stage 2] Core client initialized in memory.")
 -- CONFIGURATION
 ---------------------------------------------------------------------
 
-local S2_VERSION = "3.1.1" 
+local S2_VERSION = "3.2.0" 
 print("[Stage 2] Loader Version: " .. S2_VERSION)
 
 local API_BASE_URL = "https://opaque-conduit-proxy.gooeyhub.workers.dev"
@@ -577,17 +577,12 @@ local SHA256 = (function()
     -- #################### BEGIN INLINED sha2.lua ####################
     local sha2 = {}
     local string, table, math, bit32 = string, table, math, bit32
-    -- --- CORRECTED: REMOVED a faulty 'require "bit"' call ---
+    -- --- DEFINITIVE FIX: The faulty 'require "bit"' logic is completely removed ---
     local byte, char, rep, sub, format = string.byte, string.char, string.rep, string.sub, string.format
     local insert, concat = table.insert, table.concat
     local floor = math.floor
-    local bor, band, bnot, bxor, rshift, lrotate, rrotate
-    if type(bit32) == "table" then
-        bor, band, bnot, bxor, rshift, lrotate, rrotate =
-              bit32.bor, bit32.band, bit32.bnot, bit32.bxor, bit32.rshift, bit32.lrotate, bit32.rrotate
-    else -- Fallback for environments that might need the 'bit' library, but not yours
-        error("bit32 library not found")
-    end
+    local bor, band, bnot, bxor, rshift, lrotate, rrotate =
+          bit32.bor, bit32.band, bit32.bnot, bit32.bxor, bit32.rshift, bit32.lrotate, bit32.rrotate
     
     local function add(...)
         local res, carry = 0, 0
